@@ -20,7 +20,7 @@
     
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>eu.trentorise.opendata.semantics.nlp</groupId>
+    <groupId>eu.trentorise.opendata.semtext</groupId>
     <artifactId>semtext-jackson</artifactId>
     <version>0.27.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -257,14 +257,14 @@
     <dependencies>
         
         <dependency>
-            <groupId>eu.trentorise.opendata</groupId>
-            <artifactId>commons</artifactId>
+            <groupId>eu.trentorise.opendata.commons</groupId>
+            <artifactId>odt-commons-jackson</artifactId>
             <version>0.3.0-SNAPSHOT</version>
         </dependency>                                
         
         <dependency>
-            <groupId>eu.trentorise.opendata.semantics.nlp</groupId>
-            <artifactId>semtext-model</artifactId>
+            <groupId>eu.trentorise.opendata.semtext</groupId>
+            <artifactId>semtext</artifactId>
             <version>0.27.0-SNAPSHOT</version>
         </dependency>                                
         
