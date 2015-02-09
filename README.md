@@ -8,7 +8,7 @@ SemText Jackson
 
 <br/>
 
-Java library for semantic text JSON serialization with Jackson.
+Java library for [Odt commons](https://github.com/opendatatrentino/odt-commons) JSON serialization with Jackson.
 
 **Project status**: developing [milestone 0.5](https://github.com/opendatatrentino/semtext-jackson/issues?milestone=1&state=open) 
 

@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package eu.trentorise.opendata.semantics.nlp.test.jackson;
+package eu.trentorise.opendata.commons.test.jackson;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.base.Optional;
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -31,7 +32,28 @@ import org.junit.Test;
  */
 public class JacksonTest {
 
-    private static final Logger LOG = Logger.getLogger(JacksonTest.class.getName());
+    private static final Logger logger = Logger.getLogger(JacksonTest.class.getName());
+
+    /**
+     * Tests the provided object can be converted to json and reconstructed.
+     * Also prints the json with the provided logger at FINE level.
+     */
+    public static void testJsonConv(ObjectMapper om, Object obj, Logger logger) {
+
+        Object recObj;
+
+        try {
+            String json = om.writeValueAsString(obj);
+            logger.log(Level.FINE, "json = {0}", json);
+            recObj = om.readValue(json, obj.getClass());
+        }
+        catch (Throwable ex) {
+            throw new RuntimeException(ex);
+        }
+
+        assertEquals(obj, recObj);
+
+    }
 
     static class A {
 
@@ -50,6 +72,9 @@ public class JacksonTest {
 
     }
 
+    /**
+     * Tests Guava Optional behaviour
+     */
     @Test
     public void testOptional() throws JsonProcessingException, IOException {
         ObjectMapper om = new ObjectMapper();
