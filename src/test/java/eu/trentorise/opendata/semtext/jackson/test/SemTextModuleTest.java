@@ -15,11 +15,14 @@
  */
 package eu.trentorise.opendata.semtext.jackson.test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import eu.trentorise.opendata.commons.Dict;
 import eu.trentorise.opendata.commons.OdtConfig;
+import eu.trentorise.opendata.commons.jackson.OdtCommonsModule;
 import eu.trentorise.opendata.semtext.Meaning;
 import eu.trentorise.opendata.semtext.MeaningKind;
 import eu.trentorise.opendata.semtext.MeaningStatus;
@@ -104,4 +107,33 @@ public class SemTextModuleTest {
         assertEquals(Meaning.of(), om.readValue("{}", Meaning.class));
         assertEquals(SemText.of(), om.readValue("{}", SemText.class));
     }
+    
+    @Test
+    public void example() throws JsonProcessingException, IOException{
+        ObjectMapper om = SemTextModule.makeJacksonMapper();
+
+        String json = om.writeValueAsString(SemText.of("ciao", Locale.ITALIAN));
+        SemText reconstructedSemText = om.readValue(json, SemText.class);
+        
+    }
+    
+    @Test
+    public void manualRegistration_1() throws JsonProcessingException, IOException{
+        ObjectMapper om = new ObjectMapper();
+        om.registerModule(new GuavaModule());
+        om.registerModule(new OdtCommonsModule());
+        om.registerModule(new SemTextModule());
+
+        String json = om.writeValueAsString(SemText.of("ciao", Locale.ITALIAN));
+        SemText reconstructedSemText = om.readValue(json, SemText.class);        
+    }
+    
+    @Test
+    public void manualRegistration_2() throws JsonProcessingException, IOException{
+        ObjectMapper om = new ObjectMapper();
+        SemTextModule.registerAll(om);
+     
+        String json = om.writeValueAsString(SemText.of("ciao", Locale.ITALIAN));
+        SemText reconstructedSemText = om.readValue(json, SemText.class);        
+    }    
 }

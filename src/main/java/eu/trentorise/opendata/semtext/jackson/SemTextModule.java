@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import eu.trentorise.opendata.commons.Dict;
+import eu.trentorise.opendata.commons.jackson.Jacksonizer;
 import eu.trentorise.opendata.commons.jackson.OdtCommonsModule;
 import eu.trentorise.opendata.semtext.Meaning;
 import eu.trentorise.opendata.semtext.MeaningKind;
@@ -127,7 +128,7 @@ public final class SemTextModule extends SimpleModule {
      * semtext objects.
      */
     public static ObjectMapper makeJacksonMapper() {
-        ObjectMapper objectMapper = eu.trentorise.opendata.commons.jackson.Jacksonizer.of().makeJacksonMapper();
+        ObjectMapper objectMapper = Jacksonizer.of().makeJacksonMapper();
         objectMapper.registerModule(new SemTextModule());
         return objectMapper;
     }
@@ -136,7 +137,7 @@ public final class SemTextModule extends SimpleModule {
      * Registers in the provided object mapper the jackson semtext module and
      * also the required odt commons and guava modules
      */
-    public static void registerSemTextModule(ObjectMapper om) {
+    public static void registerAll(ObjectMapper om) {
         om.registerModule(new GuavaModule());
         om.registerModule(new OdtCommonsModule());
         om.registerModule(new SemTextModule());
