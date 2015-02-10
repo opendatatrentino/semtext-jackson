@@ -17,28 +17,25 @@ package eu.trentorise.opendata.semtext.jackson;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.google.common.collect.ImmutableListMultimap;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import eu.trentorise.opendata.commons.Dict;
-import eu.trentorise.opendata.commons.LocalizedString;
-import eu.trentorise.opendata.commons.OdtUtils;
-import eu.trentorise.opendata.commons.SemVersion;
-import eu.trentorise.opendata.semantics.nlp.model.SemText;
-import java.io.IOException;
+import eu.trentorise.opendata.commons.jackson.OdtCommonsModule;
+import eu.trentorise.opendata.semtext.Meaning;
+import eu.trentorise.opendata.semtext.MeaningKind;
+import eu.trentorise.opendata.semtext.MeaningStatus;
+import eu.trentorise.opendata.semtext.SemText;
+import eu.trentorise.opendata.semtext.Sentence;
+import eu.trentorise.opendata.semtext.Term;
 import java.util.Locale;
+import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
  * A module for handling semtext objects with Jackson JSON serialization
- * framework.
+ * framework. In order to work properly the module needs you to register also
+ * OdtCommonModule and GuavaModule (both are in separate maven packages)
  *
  * @author David Leoni <david.leoni@unitn.it>
  */
@@ -46,11 +43,56 @@ public final class SemTextModule extends SimpleModule {
 
     private static final long serialVersionUID = 1L;
 
-    private static abstract class JacksonSemText {
+    private static abstract class JacksonMeaning {
 
         @JsonCreator
-        public static SemText of(@JsonProperty("string") String string, @JsonProperty("locale") Locale locale) {
-            return null; // just because the method can't be abstract.
+        public static Meaning of(
+                @JsonProperty("id") String id,
+                @JsonProperty("kind") MeaningKind kind,
+                @JsonProperty("probability") double probability,
+                @JsonProperty("name") Dict name,
+                @JsonProperty("metadata") Map<String, ?> metadata) {
+            return null;
+        }
+    }
+
+    private static abstract class JacksonTerm {
+
+        @JsonCreator
+        public static Term of(
+                @JsonProperty("start") int start,
+                @JsonProperty("end") int end,
+                @JsonProperty("meaningStatus") MeaningStatus meaningStatus,
+                @JsonProperty("selectedMeaning") @Nullable Meaning selectedMeaning,
+                @JsonProperty("meanings") Iterable<Meaning> meanings,
+                @JsonProperty("metadata") Map<String, ?> metadata) {
+            return null;
+
+        }
+    }
+
+    private static abstract class JacksonSentence {
+
+        @JsonCreator
+        public static Sentence of(
+                @JsonProperty("start") int start,
+                @JsonProperty("end") int end,
+                @JsonProperty("terms") Iterable<Term> terms,
+                @JsonProperty("metadata") Map<String, ?> metadata) {
+            return null;
+        }
+    }
+
+    private static abstract class JacksonSemText {
+//@JsonProperty("")
+
+        @JsonCreator
+        public static SemText ofSentences(
+                @JsonProperty("text") String text,
+                @JsonProperty("locale") Locale locale,
+                @JsonProperty("sentences") Iterable<Sentence> sentences,
+                @JsonProperty("metadata") Map<String, ?> metadata) {
+            return null;
         }
 
     }
@@ -59,28 +101,13 @@ public final class SemTextModule extends SimpleModule {
      * Creates the module and registers all the needed serializaers and
      * deserializers
      */
-    public OdtCommonsModule() {
-        super("odt-commons-jackson", readJacksonVersion(OdtCommonsModule.class));
+    public SemTextModule() {
+        super("odt-commons-jackson", OdtCommonsModule.readJacksonVersion(SemTextModule.class));
 
-        // todo register version in some way
-        addSerializer(Dict.class, new StdSerializer<Dict>(Dict.class) {
-            @Override
-            public void serialize(Dict value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-                jgen.writeObject(value.asMultimap());
-            }
-        });
-
-        addDeserializer(Dict.class, new StdDeserializer<Dict>(Dict.class) {
-
-            @Override
-            public Dict deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-                TypeReference ref = new TypeReference<ImmutableListMultimap<Locale, String>>() {
-                };
-                return Dict.of((ImmutableListMultimap) jp.readValueAs(ref));
-            }
-        });
-
-        setMixInAnnotation(LocalizedString.class, JacksonLocalizedString.class);
+        setMixInAnnotation(Meaning.class, JacksonMeaning.class);
+        setMixInAnnotation(Term.class, JacksonTerm.class);
+        setMixInAnnotation(Sentence.class, JacksonSentence.class);
+        setMixInAnnotation(SemText.class, JacksonSemText.class);
 
     }
 
@@ -96,16 +123,23 @@ public final class SemTextModule extends SimpleModule {
     }
 
     /**
-     * Returns the jackson version for an odt module by reading it from build
-     * info at the root of provided class resources.
+     * Returns a jackson json object mapper fully configured to work with
+     * semtext objects.
      */
-    public static Version readJacksonVersion(Class clazz) {
-        SemVersion semver = SemVersion.of(OdtUtils.readBuildInfo(clazz).getVersion());
-        return new Version(semver.getMajor(),
-                semver.getMinor(),
-                semver.getPatch(),
-                semver.getPreReleaseVersion(),
-                "eu.trentorise.opendata.commons.jackson",
-                "odt-commons-jackson");
+    public static ObjectMapper makeJacksonMapper() {
+        ObjectMapper objectMapper = eu.trentorise.opendata.commons.jackson.Jacksonizer.of().makeJacksonMapper();
+        objectMapper.registerModule(new SemTextModule());
+        return objectMapper;
     }
+    
+    /**
+     * Registers in the provided object mapper the jackson semtext module and
+     * also the required odt commons and guava modules
+     */
+    public static void registerSemTextModule(ObjectMapper om) {
+        om.registerModule(new GuavaModule());
+        om.registerModule(new OdtCommonsModule());
+        om.registerModule(new SemTextModule());
+    }    
+
 }
