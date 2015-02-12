@@ -89,9 +89,8 @@ public class SemTextModuleTest {
                 ImmutableMap.of("c", 3));
 
         JacksonTest.testJsonConv(om,
-                SemText.ofSentences(
-                        "abcdefghilmno",
-                        Locale.ITALIAN,
+                SemText.ofSentences(Locale.ITALIAN,
+                        "abcdefghilmno",                        
                         ImmutableList.of(Sentence.of(0, 7, term)),
                         ImmutableMap.of("a", 9)), logger);
 
@@ -112,7 +111,7 @@ public class SemTextModuleTest {
     public void example() throws JsonProcessingException, IOException{
         ObjectMapper om = SemTextModule.makeJacksonMapper();
 
-        String json = om.writeValueAsString(SemText.of("ciao", Locale.ITALIAN));
+        String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
         SemText reconstructedSemText = om.readValue(json, SemText.class);
         
     }
@@ -124,7 +123,7 @@ public class SemTextModuleTest {
         om.registerModule(new OdtCommonsModule());
         om.registerModule(new SemTextModule());
 
-        String json = om.writeValueAsString(SemText.of("ciao", Locale.ITALIAN));
+        String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
         SemText reconstructedSemText = om.readValue(json, SemText.class);        
     }
     
@@ -133,7 +132,7 @@ public class SemTextModuleTest {
         ObjectMapper om = new ObjectMapper();
         SemTextModule.registerAll(om);
      
-        String json = om.writeValueAsString(SemText.of("ciao", Locale.ITALIAN));
+        String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
         SemText reconstructedSemText = om.readValue(json, SemText.class);        
     }    
 }
