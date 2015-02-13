@@ -18,7 +18,9 @@ package eu.trentorise.opendata.semtext.jackson;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.util.StdConverter;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import eu.trentorise.opendata.commons.Dict;
 import eu.trentorise.opendata.commons.jackson.Jacksonizer;
@@ -52,6 +54,7 @@ public final class SemTextModule extends SimpleModule {
                 @JsonProperty("kind") MeaningKind kind,
                 @JsonProperty("probability") double probability,
                 @JsonProperty("name") Dict name,
+                @JsonDeserialize(using = MetadataDeserializer.class)
                 @JsonProperty("metadata") Map<String, ?> metadata) {
             return null;
         }

@@ -15,8 +15,11 @@
  */
 package eu.trentorise.opendata.semtext.jackson.test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -34,6 +37,7 @@ import java.util.logging.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import eu.trentorise.opendata.commons.test.jackson.JacksonTest;
+import eu.trentorise.opendata.semtext.jackson.MyMetadata;
 import eu.trentorise.opendata.semtext.jackson.SemTextModule;
 import java.io.IOException;
 import org.junit.Assert;
@@ -41,7 +45,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Ignore;
 
 /**
- * 
+ *
  * @author David Leoni
  */
 public class SemTextModuleTest {
@@ -54,7 +58,7 @@ public class SemTextModuleTest {
     }
 
     @Test
-    public void testMapper() throws IOException {        
+    public void testMapper() throws IOException {
         ObjectMapper om = SemTextModule.makeJacksonMapper();
 
         try {
@@ -81,16 +85,16 @@ public class SemTextModuleTest {
         JacksonTest.testJsonConv(om, Meaning.of("a", MeaningKind.CONCEPT, 0.2), logger);
 
         Term term = Term.of(
-                0, 
-                2, 
-                MeaningStatus.SELECTED, 
-                m1, 
-                ImmutableList.of(m1, m2), 
+                0,
+                2,
+                MeaningStatus.SELECTED,
+                m1,
+                ImmutableList.of(m1, m2),
                 ImmutableMap.of("c", 3));
 
         JacksonTest.testJsonConv(om,
                 SemText.ofSentences(Locale.ITALIAN,
-                        "abcdefghilmno",                        
+                        "abcdefghilmno",
                         ImmutableList.of(Sentence.of(0, 7, term)),
                         ImmutableMap.of("a", 9)), logger);
 
@@ -106,33 +110,59 @@ public class SemTextModuleTest {
         assertEquals(Meaning.of(), om.readValue("{}", Meaning.class));
         assertEquals(SemText.of(), om.readValue("{}", SemText.class));
     }
-    
+
     @Test
-    public void example() throws JsonProcessingException, IOException{
+    public void example() throws JsonProcessingException, IOException {
         ObjectMapper om = SemTextModule.makeJacksonMapper();
 
         String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
         SemText reconstructedSemText = om.readValue(json, SemText.class);
-        
+
     }
-    
+
     @Test
-    public void manualRegistration_1() throws JsonProcessingException, IOException{
+    public void manualRegistration_1() throws JsonProcessingException, IOException {
         ObjectMapper om = new ObjectMapper();
         om.registerModule(new GuavaModule());
         om.registerModule(new OdtCommonsModule());
         om.registerModule(new SemTextModule());
 
         String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
-        SemText reconstructedSemText = om.readValue(json, SemText.class);        
+        SemText reconstructedSemText = om.readValue(json, SemText.class);
     }
-    
+
     @Test
-    public void manualRegistration_2() throws JsonProcessingException, IOException{
+    public void manualRegistration_2() throws JsonProcessingException, IOException {
         ObjectMapper om = new ObjectMapper();
         SemTextModule.registerAll(om);
-     
+
         String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
-        SemText reconstructedSemText = om.readValue(json, SemText.class);        
-    }    
+        SemText reconstructedSemText = om.readValue(json, SemText.class);
+    }
+
+    private static abstract class MyMetadataJackson {
+
+        @JsonCreator
+        public static MyMetadata of(@JsonProperty("field") String field){            
+            return null;
+        };
+    }
+
+    @Test
+    public void metadataSerialization() throws JsonProcessingException, IOException {
+        ObjectMapper om = SemTextModule.makeJacksonMapper();
+        om.registerModule(new SimpleModule(){
+            {
+                setMixInAnnotation(MyMetadata.class, MyMetadataJackson.class);
+            }
+        });                        
+        MyMetadata myMeta = JacksonTest.testJsonConv(om, MyMetadata.of(), logger);
+        assertEquals("", myMeta.getField());
+                
+        JacksonTest.testJsonConv(om, Meaning.of().withMetadata("testns", MyMetadata.of()), logger);
+        Meaning reconstructedMeaning = JacksonTest.testJsonConv(om, Meaning.of().withMetadata("testns", MyMetadata.of("b")), logger);
+        MyMetadata reconstructedMetadata = (MyMetadata) reconstructedMeaning.getMetadata("testns");
+        assertEquals("b", reconstructedMetadata.getField());
+    }
+
 }
