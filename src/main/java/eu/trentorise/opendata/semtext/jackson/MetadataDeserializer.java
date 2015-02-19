@@ -71,7 +71,7 @@ class MetadataDeserializer extends StdDeserializer<Map<String, Object>> {
                 
                 retb.put(namespace, metadata);
             } else {
-                throw new SemTextMetadataException("Found metadata under unregistered namespace while deserializing!",hasMetadataClass, namespace, null);
+                throw new SemTextMetadataException("Found metadata under not registered namespace while deserializing!",hasMetadataClass, namespace, null);
             }
         }
 

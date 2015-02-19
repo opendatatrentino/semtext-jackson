@@ -37,9 +37,12 @@ import org.junit.Test;
 import eu.trentorise.opendata.commons.test.jackson.JacksonTest;
 import eu.trentorise.opendata.semtext.jackson.SemTextModule;
 import java.io.IOException;
+import java.util.Date;
+import java.util.logging.Level;
 import org.junit.After;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Ignore;
 
@@ -221,8 +224,7 @@ public class SemTextModuleTest {
     /**
      * These ones for some reason don't work....
      */
-    @Test
-    @Ignore
+    @Test(expected=AssertionError.class)
     public void testEmptyConstructors() throws IOException {
 
         assertEquals(Meaning.of(), objectMapper.readValue("{}", Meaning.class));
@@ -230,15 +232,7 @@ public class SemTextModuleTest {
     }
 
     @Test
-    public void example() throws JsonProcessingException, IOException {
-
-        String json = objectMapper.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
-        SemText reconstructedSemText = objectMapper.readValue(json, SemText.class);
-
-    }
-
-    @Test
-    public void manualRegistration_1() throws JsonProcessingException, IOException {
+    public void manualRegistrationExample_1() throws JsonProcessingException, IOException {
         ObjectMapper om = new ObjectMapper();
         om.registerModule(new GuavaModule());
         om.registerModule(new OdtCommonsModule());
@@ -258,16 +252,16 @@ public class SemTextModuleTest {
     }
 
     
-    
+        
     @Test
-    public void metadataSerialization() throws JsonProcessingException, IOException {
+    public void testMetadataSerializationSimple() throws JsonProcessingException, IOException {
         ObjectMapper om = new ObjectMapper();
 
-        // we register all required modules into the Jackson Object Mapper
+        // register all required modules into the Jackson Object Mapper
         SemTextModule.registerModulesInto(om);
 
-        // we declare that metadata under namespace 'testns' in Meaning objects should be deserialized into a MyMetadata object
-        SemTextModule.registerMetadata(Meaning.class, "testns", MyMetadata.class);
+        // declare that metadata under namespace 'testns' in SemText objects should be deserialized into a Date object
+        SemTextModule.registerMetadata(SemText.class, "testns", Date.class);
 
         // Let's say MyMetadata is tricky to deserialize, so we tell Jackson how to deserialize it with a mixin annotation
         om.registerModule(new SimpleModule() {
@@ -275,14 +269,42 @@ public class SemTextModuleTest {
                 setMixInAnnotation(MyMetadata.class, MyMetadataJackson.class);
             }
         });
+                        
+        String json = om.writeValueAsString(SemText.of("ciao").withMetadata("testns", new Date(123)));
+        
+        logger.fine("json = " + json);
+        
+        SemText reconstructedSemText = om.readValue(json, SemText.class);                                
+        
+        Date reconstructedMetadata = (Date) reconstructedSemText.getMetadata("testns");
+        
+        assert  new Date(123).equals(reconstructedMetadata);
+    }    
+    
+    @Test
+    public void testMetadataSerializationComplex() throws JsonProcessingException, IOException {
+        ObjectMapper om = new ObjectMapper();
 
-        MyMetadata myMeta = JacksonTest.testJsonConv(om, MyMetadata.of(), logger);
-        assertEquals("", myMeta.getField());
+        // register all required modules into the Jackson Object Mapper
+        SemTextModule.registerModulesInto(om);
 
-        JacksonTest.testJsonConv(om, Meaning.of().withMetadata("testns", MyMetadata.of()), logger);
-        Meaning reconstructedMeaning = JacksonTest.testJsonConv(om, Meaning.of().withMetadata("testns", MyMetadata.of("b")), logger);
-        MyMetadata reconstructedMetadata = (MyMetadata) reconstructedMeaning.getMetadata("testns");
-        assertEquals("b", reconstructedMetadata.getField());
+        // declare that metadata under namespace 'testns' in SemText objects should be deserialized into a MyMetadata object
+        SemTextModule.registerMetadata(SemText.class, "testns", MyMetadata.class);
+
+        // Let's say MyMetadata is tricky to deserialize, so we tell Jackson how to deserialize it with a mixin annotation
+        om.registerModule(new SimpleModule() {
+            {
+                setMixInAnnotation(MyMetadata.class, MyMetadataJackson.class);
+            }
+        });
+        
+        String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao").withMetadata("testns", MyMetadata.of("hello")));
+        
+        SemText reconstructedSemText = om.readValue(json, SemText.class);                                
+        
+        MyMetadata reconstructedMetadata = (MyMetadata) reconstructedSemText.getMetadata("testns");
+        
+        assert  MyMetadata.of("hello").equals(reconstructedMetadata);
     }
 
 }

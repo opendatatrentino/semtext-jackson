@@ -42,9 +42,9 @@ public class MyMetadata {
         return field;
     }
 
-    private MyMetadata(String a) {
+    private MyMetadata(String field) {
         checkNotNull(field);
-        this.field = a;
+        this.field = field;
     }
 
     public static MyMetadata of() {
