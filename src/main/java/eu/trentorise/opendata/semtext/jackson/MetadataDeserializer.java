@@ -18,27 +18,26 @@ package eu.trentorise.opendata.semtext.jackson;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import eu.trentorise.opendata.semtext.HasMetadata;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  *
  * @author David Leoni
  */
-public class MetadataDeserializer extends StdDeserializer<Map<String, Object>> {
+class MetadataDeserializer extends StdDeserializer<Map<String, Object>> {
 
-    private MetadataDeserializer() {
+    private Class<? extends HasMetadata> hasMetadataClass;
+   
+    protected MetadataDeserializer(Class<? extends HasMetadata> hasMetadataClass) {
         super(Map.class);
-    }
-
-    public MetadataDeserializer(Class<?> vc) {
-        super(vc);
+        this.hasMetadataClass = hasMetadataClass;
     }
 
     @Override
@@ -52,9 +51,28 @@ public class MetadataDeserializer extends StdDeserializer<Map<String, Object>> {
             // current token is "name",
             // move to next, which is "name"'s value
             jp.nextToken();
-            MyMetadata myMetadata = jp.readValueAs(MyMetadata.class); // display mkyong
-            assert (myMetadata != null);
-            retb.put(namespace, myMetadata);
+
+            ImmutableSet<String> namespaces = SemTextModule.getMetadataNamespaces(hasMetadataClass);
+            if (namespaces.contains(namespace)) {
+                TypeReference typeRef = SemTextModule.getMetadataTypeReference(hasMetadataClass, namespace);
+
+                Object metadata;
+                
+                try {
+                    metadata = jp.readValueAs(typeRef);
+                }
+                catch (Throwable thr){
+                    throw new SemTextMetadataException("Jackson error while deserializing metadata - ", hasMetadataClass, namespace, typeRef,  thr);
+                }
+                
+                if (metadata == null){
+                    throw new SemTextMetadataException("Found null metadata while deserializing!", hasMetadataClass, namespace, typeRef);
+                }                                  
+                
+                retb.put(namespace, metadata);
+            } else {
+                throw new SemTextMetadataException("Found metadata under unregistered namespace while deserializing!",hasMetadataClass, namespace, null);
+            }
         }
 
         return retb.build();

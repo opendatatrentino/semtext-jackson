@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package eu.trentorise.opendata.semtext.jackson;
+package eu.trentorise.opendata.semtext.jackson.test;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.concurrent.Immutable;
 
 /**
+ * Example of a possible immutable metadata object. Notice it doesn't have any
+ * Jackson tags for serialization, to separate concerns they can be put in a
+ * Jackson mixin class like {@link MyMetadataJackson}
  *
  * @author David Leoni
  */
+@Immutable
+@ParametersAreNonnullByDefault
 public class MyMetadata {
 
     private final static MyMetadata INSTANCE = new MyMetadata();
@@ -36,13 +43,14 @@ public class MyMetadata {
     }
 
     private MyMetadata(String a) {
+        checkNotNull(field);
         this.field = a;
     }
 
     public static MyMetadata of() {
         return INSTANCE;
     }
-    
+
     public static MyMetadata of(String field) {
         checkNotNull(field);
         return new MyMetadata(field);
@@ -69,6 +77,5 @@ public class MyMetadata {
         }
         return true;
     }
-    
-    
+
 }

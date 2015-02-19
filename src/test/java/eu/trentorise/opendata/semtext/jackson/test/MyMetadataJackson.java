@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package eu.trentorise.opendata.semtext.jackson;
+package eu.trentorise.opendata.semtext.jackson.test;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
+ * Example Jackson mixin class for immutable {@link MyMetadata} class
  *
  * @author David Leoni
  */
+public abstract class MyMetadataJackson {
 
-public class SemTextMetadata {
-    
+    @JsonCreator
+    public static MyMetadata of(@JsonProperty("field") String field) {
+        return null; // just to return something, it won't be used.
+    }
+
 }
