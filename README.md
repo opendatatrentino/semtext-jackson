@@ -12,7 +12,9 @@ Java library for [semantic text](https://github.com/opendatatrentino/semtext) JS
 
 **Project status**: developing [milestone 0.5](https://github.com/opendatatrentino/semtext-jackson/issues?milestone=1&state=open) 
 
-**Usage**: see [the wiki](https://github.com/opendatatrentino/semtext-jackson/wiki)
+**Usage**: Project is not published yet, so [usage docs](docs/index.md) are subject to change. 
+
+**Contributing**: see [the wiki](https://github.com/opendatatrentino/semtext-jackson/wiki)
 
 
 **Features**:
