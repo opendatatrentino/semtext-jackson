@@ -1,5 +1,8 @@
-SemText Jackson 
-===
+<p class="jedoc-to-strip">
+WARNING: WORK IN PROGRESS - THIS IS ONLY A TEMPLATE FOR THE DOCUMENTATION. <br/>
+RELEASE DOCS ARE ON THE <a href="http://opendatatrentino.github.io/semtext-jackson" target="_blank">PROJECT WEBSITE</a>
+</p>
+
 <!--
 <p align="center">
 <img alt="Jackan" src="https://github.com/opendatatrentino/jackan/wiki/img/jackan-logo-200px.png" width="150px">
@@ -8,20 +11,25 @@ SemText Jackson
 
 <br/>
 
-Java library for [semantic text](https://github.com/opendatatrentino/semtext) JSON serialization with Jackson.
+**About**
 
-**Project status**: developing [milestone 0.5](https://github.com/opendatatrentino/semtext-jackson/issues?milestone=1&state=open) 
+Java library for [SemText](https://github.com/opendatatrentino/semtext) JSON serialization with Jackson. Features:
 
-**Usage**: Project is not published yet, so [usage docs](docs/x.y/index.md) are subject to change. 
-
-**Contributing**: see [the wiki](https://github.com/opendatatrentino/semtext-jackson/wiki)
-
-
-**Features**:
-  * provides a Jackson Module
+  * provides a Jackson Module for SemText objects
+  * allows to serialize/deserialize any Java object used as metadata
   * dependency handling with Maven
   * has a liberal Apache 2.0 license
   * supports Java 6+
+
+
+
+Usage: See [docs](docs)
+
+Roadmap: See [project milestones](../../milestones)
+
+License: business-friendly [Apache License v2.0](LICENSE.txt)
+
+Contributing: See [the wiki](../../wiki)
 
 
 **Credits**:
