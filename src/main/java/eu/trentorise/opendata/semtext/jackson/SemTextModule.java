@@ -21,13 +21,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableSet;
 import eu.trentorise.opendata.commons.Dict;
 import eu.trentorise.opendata.commons.NotFoundException;
 import static eu.trentorise.opendata.commons.OdtUtils.checkNotEmpty;
-import eu.trentorise.opendata.commons.jackson.Jacksonizer;
 import eu.trentorise.opendata.commons.jackson.OdtCommonsModule;
 import eu.trentorise.opendata.semtext.HasMetadata;
 import eu.trentorise.opendata.semtext.Meaning;
@@ -58,16 +56,16 @@ public final class SemTextModule extends SimpleModule {
     /**
      * Map for Class name, namespace, and jacksonizable class
      */
-    private static final Map<String, Map<String, TypeReference>> metadataNamespaces = new HashMap();
+    private static final Map<String, Map<String, TypeReference>> METADATA_NAMESPACES = new HashMap();
 
-    private static class MeaningMetadataDeserializer extends MetadataDeserializer {
+    private static final class MeaningMetadataDeserializer extends MetadataDeserializer {
 
         private MeaningMetadataDeserializer() {
             super(Meaning.class);
         }
     }
 
-    private static abstract class JacksonMeaning {
+    private abstract static class JacksonMeaning {
 
         @JsonCreator
         public static Meaning of(
@@ -81,14 +79,14 @@ public final class SemTextModule extends SimpleModule {
         }
     }
 
-    private static class TermMetadataDeserializer extends MetadataDeserializer {
+    private static final class TermMetadataDeserializer extends MetadataDeserializer {
 
         private TermMetadataDeserializer() {
             super(Term.class);
         }
     }
 
-    private static abstract class JacksonTerm {
+    private abstract static class JacksonTerm {
 
         @JsonCreator
         public static Term of(
@@ -104,14 +102,14 @@ public final class SemTextModule extends SimpleModule {
         }
     }
 
-    private static class SentenceMetadataDeserializer extends MetadataDeserializer {
+    private static final class SentenceMetadataDeserializer extends MetadataDeserializer {
 
         private SentenceMetadataDeserializer() {
             super(Sentence.class);
         }
     }
 
-    private static abstract class JacksonSentence {
+    private abstract static class JacksonSentence {
 
         @JsonCreator
         public static Sentence of(
@@ -124,14 +122,14 @@ public final class SemTextModule extends SimpleModule {
         }
     }
 
-    private static class SemTextMetadataDeserializer extends MetadataDeserializer {
+    private static final class SemTextMetadataDeserializer extends MetadataDeserializer {
 
         private SemTextMetadataDeserializer() {
             super(SemText.class);
         }
     }
 
-    private static abstract class JacksonSemText {
+    private abstract static class JacksonSemText {
 
         @JsonCreator
         public static SemText ofSentences(
@@ -174,8 +172,7 @@ public final class SemTextModule extends SimpleModule {
      * also the required odt commons and guava modules.
      */
     public static void registerModulesInto(ObjectMapper om) {
-        om.registerModule(new GuavaModule());
-        om.registerModule(new OdtCommonsModule());
+        OdtCommonsModule.registerModulesInto(om);               
         om.registerModule(new SemTextModule());
     }
 
@@ -222,7 +219,7 @@ public final class SemTextModule extends SimpleModule {
         checkNotEmpty(namespace, "Invalid metadata namespace!");
         checkNotNull(metadataClass);
 
-        Map<String, TypeReference> candidateMapping = metadataNamespaces.get(hasMetadataClass.getName());
+        Map<String, TypeReference> candidateMapping = METADATA_NAMESPACES.get(hasMetadataClass.getName());
         Map<String, TypeReference> namespaceMapping;
         if (candidateMapping == null) {
             namespaceMapping = new HashMap();
@@ -231,14 +228,14 @@ public final class SemTextModule extends SimpleModule {
         }
 
         namespaceMapping.put(namespace, metadataClass);
-        metadataNamespaces.put(hasMetadataClass.getName(), namespaceMapping);
+        METADATA_NAMESPACES.put(hasMetadataClass.getName(), namespaceMapping);
     }
 
     /**
      * Unregisters all the previously registered metadata namespaces.
      */
     public static void clearMetadata() {
-        metadataNamespaces.clear();
+        METADATA_NAMESPACES.clear();
     }
 
     /**
@@ -250,7 +247,7 @@ public final class SemTextModule extends SimpleModule {
      * {@link eu.trentorise.opendata.semtext.Meaning}
      */
     public static ImmutableSet<String> getMetadataNamespaces(Class<? extends HasMetadata> hasMetadataClass) {
-        Map<String, TypeReference> map = metadataNamespaces.get(hasMetadataClass.getName());
+        Map<String, TypeReference> map = METADATA_NAMESPACES.get(hasMetadataClass.getName());
         if (map == null) {
             return ImmutableSet.of();
         } else {
@@ -272,7 +269,7 @@ public final class SemTextModule extends SimpleModule {
     public static TypeReference getMetadataTypeReference(Class<? extends HasMetadata> hasMetadataClass, String namespace) {
         checkNotNull(hasMetadataClass);
         checkNotEmpty(namespace, "Invalid metadata namespace!");
-        Map<String, TypeReference> mapping = metadataNamespaces.get(hasMetadataClass.getName());
+        Map<String, TypeReference> mapping = METADATA_NAMESPACES.get(hasMetadataClass.getName());
         if (mapping != null) {
             TypeReference clazz = mapping.get(namespace);
             if (clazz != null) {

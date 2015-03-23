@@ -69,16 +69,16 @@ public class SemTextMetadataException extends RuntimeException {
     /**
      * Returns the class holding metadata.
      */    
-    public @Nullable
-    Class<? extends HasMetadata> getHasMetadataClass() {
+    @Nullable
+    public Class<? extends HasMetadata> getHasMetadataClass() {
         return hasMetadataClass;
     }
 
     /**
      * Returns the metadata namespace
      */
-    public @Nullable
-    String getNamespace() {
+    @Nullable
+    public String getNamespace() {
         return namespace;
     }
 

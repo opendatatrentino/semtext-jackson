@@ -41,7 +41,7 @@ class MetadataDeserializer extends StdDeserializer<Map<String, Object>> {
     }
 
     @Override
-    public Map<String, Object> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public Map<String, Object> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
 
         ImmutableMap.Builder<String, Object> retb = ImmutableMap.builder();
 
@@ -61,8 +61,8 @@ class MetadataDeserializer extends StdDeserializer<Map<String, Object>> {
                 try {
                     metadata = jp.readValueAs(typeRef);
                 }
-                catch (Throwable thr){
-                    throw new SemTextMetadataException("Jackson error while deserializing metadata - ", hasMetadataClass, namespace, typeRef,  thr);
+                catch (Exception ex){
+                    throw new SemTextMetadataException("Jackson error while deserializing metadata - ", hasMetadataClass, namespace, typeRef,  ex);
                 }
                 
                 if (metadata == null){

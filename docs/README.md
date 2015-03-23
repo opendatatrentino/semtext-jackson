@@ -25,32 +25,34 @@ In case updates are available, version numbers follows [semantic versioning](htt
 ### Using Jackson Module
 
 You can register SemTextModule in your own Jackson ObjectMapper:
-```
-        ObjectMapper om = new ObjectMapper();
-        om.registerModule(new GuavaModule());
-        om.registerModule(new OdtCommonsModule());
-        om.registerModule(new SemTextModule());
-
-        String json = om.writeValueAsString(SemText.of("ciao", Locale.ITALIAN));
-        SemText reconstructedSemText = om.readValue(json, SemText.class);
-```
-
-Notice we are also registered the necessary Guava (for immutable collections) and Odt Commons modules (for Dict and LocalizedString). To register everything in one command just write:
 
 ```
-        ObjectMapper om = new ObjectMapper();
-        SemTextModule.registerModulesInto(om);        
+    ObjectMapper om = new ObjectMapper();
+    om.registerModule(new GuavaModule());
+    om.registerModule(new OdtCommonsModule());
+    om.registerModule(new SemTextModule());
+
+    String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
+    SemText reconstructedSemText = om.readValue(json, SemText.class);
+```
+
+Notice we have also registered the necessary Guava (for immutable collections) and Odt Commons modules (for Dict and LocalizedString).
+To register everything in one command just write:
+
+```
+    ObjectMapper om = new ObjectMapper();
+    SemTextModule.registerModulesInto(om);        
   
 ```
 
 #### Simple usage example
 
 ```
-        ObjectMapper om = new ObjectMapper();
-        SemTextModule.registerModulesInto(om);
-        
-        String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
-        SemText reconstructedSemText = om.readValue(json, SemText.class);
+    ObjectMapper om = new ObjectMapper();
+    SemTextModule.registerModulesInto(om);
+
+    String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
+    SemText reconstructedSemText = om.readValue(json, SemText.class);
 ```
 
 #### Metadata deserialization
@@ -58,8 +60,9 @@ Notice we are also registered the necessary Guava (for immutable collections) an
 Any object can be attached as metadata to SemText, Sentence, Term or Meaning, with the constraint that it must be non-null and should be immutable. Metadata is accessed by providing a namespace. For example, let's say we want to associate a Java Date to SemText, under the namespace "testns". 
 
 To create our object in Java we can write this:
+
 ```
-SemText.of("ciao").withMetadata("testns", new Date(123))
+    SemText.of("ciao").withMetadata("testns", new Date(123))
 ```
 
 Once serialized as JSON, it will look like this:
@@ -78,22 +81,22 @@ Once serialized as JSON, it will look like this:
 In order for metadata objects to be properly deserialized, we need to associate namespaces to object types by registering them in the SemTextModule. So, in order to serialize/deserialize the example above, we would do something like the following:
 
 ```
-ObjectMapper om = new ObjectMapper();
+    ObjectMapper om = new ObjectMapper();
 
-// register all required modules into the Jackson Object Mapper
-SemTextModule.registerModulesInto(om);
+    // register all required modules into the Jackson Object Mapper
+    SemTextModule.registerModulesInto(om);
 
-// declare that metadata under namespace 'testns' in SemText objects
-// should be deserialized into a Date object
-SemTextModule.registerMetadata(SemText.class, "testns", Date.class);       
-                        
-String json = om.writeValueAsString(SemText.of("ciao").withMetadata("testns", new Date(123)));
-        
-SemText reconstructedSemText = om.readValue(json, SemText.class);                                
-        
-Date reconstructedMetadata = (Date) reconstructedSemText.getMetadata("testns");
-        
-assert  new Date(123).equals(reconstructedMetadata);
+    // declare that metadata under namespace 'testns' in SemText objects
+    // should be deserialized into a Date object
+    SemTextModule.registerMetadata(SemText.class, "testns", Date.class);       
+
+    String json = om.writeValueAsString(SemText.of("ciao").withMetadata("testns", new Date(123)));
+
+    SemText reconstructedSemText = om.readValue(json, SemText.class);                                
+
+    Date reconstructedMetadata = (Date) reconstructedSemText.getMetadata("testns");
+
+    assert  new Date(123).equals(reconstructedMetadata);
 ```
 
 NOTE: namespace register is a static variable, so it's shared among all the object mappers. If you're writing a library with SemText serializer make sure to use a reasonably unique (thus long) namespace. Applications instead may use shorter namespaces.
