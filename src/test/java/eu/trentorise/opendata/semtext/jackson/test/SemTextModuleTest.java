@@ -16,13 +16,17 @@
 package eu.trentorise.opendata.semtext.jackson.test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import eu.trentorise.opendata.commons.Dict;
+import eu.trentorise.opendata.commons.NotFoundException;
 import eu.trentorise.opendata.commons.OdtConfig;
 import eu.trentorise.opendata.commons.jackson.OdtCommonsModule;
 import eu.trentorise.opendata.semtext.Meaning;
@@ -36,12 +40,17 @@ import java.util.logging.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import eu.trentorise.opendata.commons.test.jackson.JacksonTest;
+import eu.trentorise.opendata.semtext.jackson.SemTextMetadataException;
 import eu.trentorise.opendata.semtext.jackson.SemTextModule;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.logging.Level;
 import org.junit.After;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 
 /**
@@ -70,7 +79,7 @@ public class SemTextModuleTest {
         objectMapper = null;
         SemTextModule.clearMetadata();
     }
-    
+
     @Test
     public void testUnregisteredMetadata() throws IOException {
 
@@ -83,13 +92,62 @@ public class SemTextModuleTest {
         try {
             JacksonTest.testJsonConv(objectMapper, m1, LOG);
             Assert.fail("Should have complained about unregistered namespace!");
-        } catch (Exception ex){
-                
+        }
+        catch (Exception ex) {
+
+        }
+        try {
+            SemTextModule.getMetadataTypeReference(Sentence.class, "a");
+            Assert.fail();
+        }
+        catch (NotFoundException ex) {
+
         }
     }
+    
+    @Test
+    public void testDeserializingUnregisteredMetadata() throws JsonProcessingException, IOException{
+        String string = objectMapper.writeValueAsString(Meaning.of());
+        ObjectNode jo = (ObjectNode) objectMapper.readTree(string);
+        ObjectNode jo2 = objectMapper.createObjectNode();
+        jo2.put("a", "b");
+        jo.put("metadata", jo2);
 
-    /** Registers MyMetadata in objectMapper */
-    private void registerMyMetadata(){
+        LOG.log(Level.FINE, "jo.toString = {0}", jo.toString());
+
+        try {
+            objectMapper.readValue(jo.toString(), Meaning.class);
+            Assert.fail();
+        }
+        catch (SemTextMetadataException ex) {
+
+        }        
+    }
+    
+  @Test
+    public void testDeserializingNullMetadata() throws JsonProcessingException, IOException{
+        SemTextModule.registerMetadata(Meaning.class, "a", String.class);
+        String string = objectMapper.writeValueAsString(Meaning.of());
+        ObjectNode jo = (ObjectNode) objectMapper.readTree(string);
+        ObjectNode jo2 = objectMapper.createObjectNode();
+        jo2.put("a", (String) null);
+        jo.put("metadata", jo2);
+
+        LOG.log(Level.FINE, "jo.toString = {0}", jo.toString());
+
+        try {
+            objectMapper.readValue(jo.toString(), Meaning.class);
+            Assert.fail();
+        }
+        catch (SemTextMetadataException ex) {
+
+        }        
+    }    
+
+    /**
+     * Registers MyMetadata in objectMapper
+     */
+    private void registerMyMetadata() {
         objectMapper.registerModule(new SimpleModule() {
             {
                 setMixInAnnotation(MyMetadata.class, MyMetadataJackson.class);
@@ -110,7 +168,7 @@ public class SemTextModuleTest {
                 0.2,
                 Dict.of(Locale.ITALIAN, "a"),
                 ImmutableMap.of("a", Dict.of("s"),
-                                "b", MyMetadata.of("hello")));
+                        "b", MyMetadata.of("hello")));
         JacksonTest.testJsonConv(objectMapper, m1, LOG);
     }
 
@@ -130,14 +188,14 @@ public class SemTextModuleTest {
     public void testSentence() throws IOException {
         SemTextModule.registerMetadata(Sentence.class, "a", MyMetadata.class);
         registerMyMetadata();
-        
+
         Sentence sen = Sentence.of(0,
                 1,
                 ImmutableList.<Term>of(),
                 ImmutableMap.of("a", MyMetadata.of("hello")));
         JacksonTest.testJsonConv(objectMapper, sen, LOG);
     }
-    
+
     @Test
     public void testMetadataSentence() throws IOException {
         SemTextModule.registerMetadata(Sentence.class, "a", MyMetadata.class);
@@ -148,19 +206,19 @@ public class SemTextModuleTest {
                 ImmutableMap.of("a", MyMetadata.of("hello")));
         JacksonTest.testJsonConv(objectMapper, sen, LOG);
     }
-    
-    
+
     @Test
     public void testMetadataSemText() throws IOException {
-        SemTextModule.registerMetadata(SemText.class, "a", MyMetadata.class);      
+        SemTextModule.registerMetadata(SemText.class, "a", MyMetadata.class);
         registerMyMetadata();
-        
-        SemText res = JacksonTest.testJsonConv(objectMapper,
+
+        JacksonTest.testJsonConv(objectMapper,
                 SemText.ofSentences(Locale.ITALIAN,
                         "abcdefghilmno",
                         ImmutableList.<Sentence>of(),
-                        ImmutableMap.of("a", MyMetadata.of())), LOG);        
-    }    
+                        ImmutableMap.of("a", MyMetadata.of())), LOG);
+
+    }
 
     @Test
     public void testMapper() throws IOException {
@@ -176,7 +234,7 @@ public class SemTextModuleTest {
                 setMixInAnnotation(MyMetadata.class, MyMetadataJackson.class);
             }
         });
-        
+
         try {
             objectMapper.readValue("{\"start\":2, \"end\":1}", Term.class);
             Assert.fail("Should have failed because of missing attributes!");
@@ -222,7 +280,7 @@ public class SemTextModuleTest {
     /**
      * These ones for some reason don't work....
      */
-    @Test(expected=JsonMappingException.class)
+    @Test(expected = JsonMappingException.class)
     public void testEmptyConstructors() throws IOException {
 
         assertEquals(Meaning.of(), objectMapper.readValue("{}", Meaning.class));
@@ -249,8 +307,6 @@ public class SemTextModuleTest {
         SemText reconstructedSemText = om.readValue(json, SemText.class);
     }
 
-    
-        
     @Test
     public void testMetadataSerializationSimple() throws JsonProcessingException, IOException {
         ObjectMapper om = new ObjectMapper();
@@ -267,18 +323,18 @@ public class SemTextModuleTest {
                 setMixInAnnotation(MyMetadata.class, MyMetadataJackson.class);
             }
         });
-                        
+
         String json = om.writeValueAsString(SemText.of("ciao").withMetadata("testns", new Date(123)));
-        
+
         LOG.fine("json = " + json);
-        
-        SemText reconstructedSemText = om.readValue(json, SemText.class);                                
-        
+
+        SemText reconstructedSemText = om.readValue(json, SemText.class);
+
         Date reconstructedMetadata = (Date) reconstructedSemText.getMetadata("testns");
-        
-        assert  new Date(123).equals(reconstructedMetadata);
-    }    
-    
+
+        assert new Date(123).equals(reconstructedMetadata);
+    }
+
     @Test
     public void testMetadataSerializationComplex() throws JsonProcessingException, IOException {
         ObjectMapper om = new ObjectMapper();
@@ -295,14 +351,40 @@ public class SemTextModuleTest {
                 setMixInAnnotation(MyMetadata.class, MyMetadataJackson.class);
             }
         });
-        
+
         String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao").withMetadata("testns", MyMetadata.of("hello")));
-        
-        SemText reconstructedSemText = om.readValue(json, SemText.class);                                
-        
+
+        SemText reconstructedSemText = om.readValue(json, SemText.class);
+
         MyMetadata reconstructedMetadata = (MyMetadata) reconstructedSemText.getMetadata("testns");
-        
-        assert  MyMetadata.of("hello").equals(reconstructedMetadata);
+
+        assert MyMetadata.of("hello").equals(reconstructedMetadata);
+    }
+
+    @Test
+    public void testSemTextMetadataException() {
+        TypeReference typeRef = new TypeReference<String>() {
+        };
+        SemTextMetadataException ex1 = new SemTextMetadataException("a", Sentence.class, "b", typeRef);
+        assertTrue(ex1.getMessage().length() > 1);
+        assertEquals("b", ex1.getNamespace());
+        assertEquals(typeRef, ex1.getTypeRef());
+        assertEquals(Sentence.class, ex1.getHasMetadataClass());
+
+        SemTextMetadataException ex2 = new SemTextMetadataException("a", Sentence.class, "b", null);
+        assertTrue(ex2.getMessage().length() > 1);
+
+    }
+
+    /**
+     * Tests weird module equality copied from Guava module
+     */
+    @Test
+    public void testEquality() {
+        SemTextModule sm = new SemTextModule();
+        assertEquals(sm, sm);
+        assertEquals(new SemTextModule().hashCode(), new SemTextModule().hashCode());
+        assertNotEquals(new SemTextModule(), new SemTextModule());
     }
 
 }

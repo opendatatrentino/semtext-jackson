@@ -15,15 +15,17 @@
  */
 package eu.trentorise.opendata.semtext.jackson;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import eu.trentorise.opendata.semtext.HasMetadata;
 import javax.annotation.Nullable;
 
 /**
  * Exception for problems occurring during SemText metadata deserialization.
+ *
  * @author David Leoni
  */
-public class SemTextMetadataException extends RuntimeException {
+public class SemTextMetadataException extends JsonProcessingException {
 
     @Nullable
     private Class<? extends HasMetadata> hasMetadataClass;
@@ -31,6 +33,10 @@ public class SemTextMetadataException extends RuntimeException {
     private TypeReference typeRef;
     @Nullable
     private String namespace;
+
+    private SemTextMetadataException() {
+        super("");
+    }
 
     /**
      *
@@ -40,7 +46,7 @@ public class SemTextMetadataException extends RuntimeException {
      * @param typeRef type of the object which was attempted to instantiate. If
      * unknown put null.
      */
-    public SemTextMetadataException(String msg, Class<? extends HasMetadata> hasMetadataClass, String namespace, @Nullable TypeReference typeRef) {
+    public SemTextMetadataException(String msg, @Nullable Class<? extends HasMetadata> hasMetadataClass, @Nullable String namespace, @Nullable TypeReference typeRef) {
         super(msg);
         this.hasMetadataClass = hasMetadataClass;
         this.namespace = namespace;
@@ -68,7 +74,7 @@ public class SemTextMetadataException extends RuntimeException {
 
     /**
      * Returns the class holding metadata.
-     */    
+     */
     @Nullable
     public Class<? extends HasMetadata> getHasMetadataClass() {
         return hasMetadataClass;
@@ -93,12 +99,14 @@ public class SemTextMetadataException extends RuntimeException {
     }
 
     /**
-     * Appends namespace and metadata class to
+     * Returns the message passed in the constructor plus namespace and metadata
+     * class appended to it.
      */
     @Override
     public String getMessage() {
         String foundType = typeRef == null ? "" : "failed instantiation " + typeRef.getType() + " in ";
-        return super.getMessage() + foundType + "namespace: \"" + namespace + "\" in object of class \"" + hasMetadataClass.getName() + "\"";
+        String hasMetadataClassName = hasMetadataClass == null ? "null" : hasMetadataClass.getName();
+        return super.getMessage() + foundType + "namespace: \"" + namespace + "\" in object of class \"" + hasMetadataClassName + "\"";
     }
 
 }

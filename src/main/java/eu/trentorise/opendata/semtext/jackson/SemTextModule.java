@@ -256,8 +256,8 @@ public final class SemTextModule extends SimpleModule {
     }
 
     /**
-     * Returns the jacksonizable class associated to the provided metadata
-     * holder class and namespace
+     * Returns the jacksonizable class associated to the provided 
+     * class that can hold metadata and namespace
      *
      * @param hasMetadataClass Either {@link eu.trentorise.opendata.semtext.SemText}, {@link eu.trentorise.opendata.semtext.Sentence},
      * {@link eu.trentorise.opendata.semtext.Term} or
