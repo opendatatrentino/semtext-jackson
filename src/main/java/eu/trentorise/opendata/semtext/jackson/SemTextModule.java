@@ -162,8 +162,7 @@ public final class SemTextModule extends SimpleModule {
     }
 
     @Override
-    public boolean equals(Object o
-    ) {
+    public boolean equals(Object o) {
         return this == o; // it's like this in Guava module!
     }
 
@@ -172,7 +171,7 @@ public final class SemTextModule extends SimpleModule {
      * also the required odt commons and guava modules.
      */
     public static void registerModulesInto(ObjectMapper om) {
-        OdtCommonsModule.registerModulesInto(om);               
+        OdtCommonsModule.registerModulesInto(om);
         om.registerModule(new SemTextModule());
     }
 
@@ -203,9 +202,10 @@ public final class SemTextModule extends SimpleModule {
     }
 
     /**
-     * Registers the provided namespace to the corresponding metadata type reference,
-     * so Jackson will know how to deserialize objects under that namespace. The
-     * mapping will be valid only for the specified metadata holder class.
+     * Registers the provided namespace to the corresponding metadata type
+     * reference, so Jackson will know how to deserialize objects under that
+     * namespace. The mapping will be valid only for the specified metadata
+     * holder class.
      *
      * @param hasMetadataClass Either {@link eu.trentorise.opendata.semtext.SemText}, {@link eu.trentorise.opendata.semtext.Sentence},
      * {@link eu.trentorise.opendata.semtext.Term} or
@@ -256,8 +256,8 @@ public final class SemTextModule extends SimpleModule {
     }
 
     /**
-     * Returns the jacksonizable class associated to the provided 
-     * class that can hold metadata and namespace
+     * Returns the jacksonizable class associated to the provided class that can
+     * hold metadata and namespace
      *
      * @param hasMetadataClass Either {@link eu.trentorise.opendata.semtext.SemText}, {@link eu.trentorise.opendata.semtext.Sentence},
      * {@link eu.trentorise.opendata.semtext.Term} or
