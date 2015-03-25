@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.sun.xml.internal.bind.v2.model.core.TypeRef;
 import eu.trentorise.opendata.commons.Dict;
 import eu.trentorise.opendata.commons.NotFoundException;
 import eu.trentorise.opendata.commons.OdtConfig;
@@ -45,6 +46,7 @@ import eu.trentorise.opendata.semtext.jackson.SemTextModule;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import org.junit.After;
 import org.junit.Assert;
@@ -104,9 +106,9 @@ public class SemTextModuleTest {
 
         }
     }
-    
+
     @Test
-    public void testDeserializingUnregisteredMetadata() throws JsonProcessingException, IOException{
+    public void testDeserializingUnregisteredMetadata() throws JsonProcessingException, IOException {
         String string = objectMapper.writeValueAsString(Meaning.of());
         ObjectNode jo = (ObjectNode) objectMapper.readTree(string);
         ObjectNode jo2 = objectMapper.createObjectNode();
@@ -121,11 +123,33 @@ public class SemTextModuleTest {
         }
         catch (SemTextMetadataException ex) {
 
-        }        
+        }
     }
-    
-  @Test
-    public void testDeserializingNullMetadata() throws JsonProcessingException, IOException{
+
+    @Test
+    public void testDeserializingWrongMetadata() throws JsonProcessingException, IOException {
+        SemTextModule.registerMetadata(Meaning.class, "a", new TypeReference<List<String>>() {
+        });
+
+        String string = objectMapper.writeValueAsString(Meaning.of());
+        ObjectNode jo = (ObjectNode) objectMapper.readTree(string);
+        ObjectNode jo2 = objectMapper.createObjectNode();
+        jo2.put("a", "b");
+        jo.put("metadata", jo2);
+
+        LOG.log(Level.FINE, "jo.toString = {0}", jo.toString());
+
+        try {
+            objectMapper.readValue(jo.toString(), Meaning.class);
+            Assert.fail();
+        }
+        catch (SemTextMetadataException ex) {
+
+        }
+    }
+
+    @Test
+    public void testDeserializingNullMetadata() throws JsonProcessingException, IOException {
         SemTextModule.registerMetadata(Meaning.class, "a", String.class);
         String string = objectMapper.writeValueAsString(Meaning.of());
         ObjectNode jo = (ObjectNode) objectMapper.readTree(string);
@@ -141,8 +165,8 @@ public class SemTextModuleTest {
         }
         catch (SemTextMetadataException ex) {
 
-        }        
-    }    
+        }
+    }
 
     /**
      * Registers MyMetadata in objectMapper
@@ -373,6 +397,13 @@ public class SemTextModuleTest {
 
         SemTextMetadataException ex2 = new SemTextMetadataException("a", Sentence.class, "b", null);
         assertTrue(ex2.getMessage().length() > 1);
+
+        @SuppressWarnings({"ThrowableInstanceNotThrown", "ThrowableInstanceNeverThrown"})
+        SemTextMetadataException ex3 = new SemTextMetadataException("a", null, "b", typeRef, new RuntimeException());
+        assertTrue(ex1.getMessage().length() > 1);
+        assertEquals("b", ex1.getNamespace());
+        assertEquals(typeRef, ex1.getTypeRef());
+        assertEquals(Sentence.class, ex1.getHasMetadataClass());
 
     }
 
