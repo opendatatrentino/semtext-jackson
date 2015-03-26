@@ -18,14 +18,12 @@ package eu.trentorise.opendata.semtext.jackson.test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.sun.xml.internal.bind.v2.model.core.TypeRef;
 import eu.trentorise.opendata.commons.Dict;
 import eu.trentorise.opendata.commons.NotFoundException;
 import eu.trentorise.opendata.commons.OdtConfig;
@@ -44,7 +42,6 @@ import eu.trentorise.opendata.commons.test.jackson.JacksonTest;
 import eu.trentorise.opendata.semtext.jackson.SemTextMetadataException;
 import eu.trentorise.opendata.semtext.jackson.SemTextModule;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -67,7 +64,7 @@ public class SemTextModuleTest {
 
     @BeforeClass
     public static void beforeClass() {
-        OdtConfig.of(SemTextModuleTest.class).loadLogConfig();
+        OdtConfig.init(SemTextModuleTest.class);
     }
 
     @Before

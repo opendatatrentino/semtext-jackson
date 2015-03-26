@@ -46,7 +46,11 @@ public class SemTextMetadataException extends JsonProcessingException {
      * @param typeRef type of the object which was attempted to instantiate. If
      * unknown put null.
      */
-    public SemTextMetadataException(String msg, @Nullable Class<? extends HasMetadata> hasMetadataClass, @Nullable String namespace, @Nullable TypeReference typeRef) {
+    public SemTextMetadataException(   
+                                    String msg, 
+                                    @Nullable Class<? extends HasMetadata> hasMetadataClass, 
+                                    @Nullable String namespace, 
+                                    @Nullable TypeReference typeRef) {
         super(msg);
         this.hasMetadataClass = hasMetadataClass;
         this.namespace = namespace;
