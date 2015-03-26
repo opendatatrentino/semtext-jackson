@@ -87,6 +87,7 @@ public class SemTextModuleTest {
                 MeaningKind.ENTITY,
                 0.2,
                 Dict.of(Locale.ITALIAN, "a"),
+                Dict.of(Locale.FRENCH, "b"),
                 ImmutableMap.of("testns", Dict.of("s")));
         try {
             JacksonTest.testJsonConv(objectMapper, m1, LOG);
@@ -188,6 +189,7 @@ public class SemTextModuleTest {
                 MeaningKind.ENTITY,
                 0.2,
                 Dict.of(Locale.ITALIAN, "a"),
+                Dict.of(Locale.FRENCH, "b"),
                 ImmutableMap.of("a", Dict.of("s"),
                         "b", MyMetadata.of("hello")));
         JacksonTest.testJsonConv(objectMapper, m1, LOG);
@@ -201,6 +203,7 @@ public class SemTextModuleTest {
                 MeaningKind.ENTITY,
                 0.2,
                 Dict.of(Locale.ITALIAN, "a"),
+                Dict.of(Locale.FRENCH, "b"),
                 ImmutableMap.of("a", Dict.of("s")));
         JacksonTest.testJsonConv(objectMapper, m1, LOG);
     }
@@ -269,12 +272,14 @@ public class SemTextModuleTest {
                 MeaningKind.ENTITY,
                 0.2,
                 Dict.of(Locale.ITALIAN, "a"),
+                Dict.of(Locale.FRENCH, "b"),
                 ImmutableMap.of("a", Dict.of("s")));
         Meaning m2 = Meaning.of(
                 "b",
                 MeaningKind.ENTITY,
                 0.2,
                 Dict.of(Locale.ITALIAN, "a"),
+                Dict.of(Locale.FRENCH, "b"),
                 ImmutableMap.of("b", Dict.of("s")));
 
         JacksonTest.testJsonConv(objectMapper, Meaning.of("a", MeaningKind.CONCEPT, 0.2), LOG);

@@ -73,6 +73,7 @@ public final class SemTextModule extends SimpleModule {
                 @JsonProperty("kind") MeaningKind kind,
                 @JsonProperty("probability") double probability,
                 @JsonProperty("name") Dict name,
+                @JsonProperty("description") Dict description,
                 @JsonDeserialize(using = MeaningMetadataDeserializer.class)
                 @JsonProperty("metadata") Map<String, ?> metadata) {
             return null;
