@@ -38,13 +38,14 @@ import java.util.Locale;
 import java.util.logging.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import eu.trentorise.opendata.commons.test.jackson.JacksonTest;
+import eu.trentorise.opendata.commons.test.jackson.OdtJacksonTester;
+import static eu.trentorise.opendata.commons.test.jackson.OdtJacksonTester.changeField;
+import static eu.trentorise.opendata.commons.test.jackson.OdtJacksonTester.testJsonConv;
 import eu.trentorise.opendata.semtext.jackson.SemTextMetadataException;
 import eu.trentorise.opendata.semtext.jackson.SemTextModule;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import org.junit.After;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
@@ -90,7 +91,7 @@ public class SemTextModuleTest {
                 Dict.of(Locale.FRENCH, "b"),
                 ImmutableMap.of("testns", Dict.of("s")));
         try {
-            JacksonTest.testJsonConv(objectMapper, m1, LOG);
+            OdtJacksonTester.testJsonConv(objectMapper, LOG, m1);
             Assert.fail("Should have complained about unregistered namespace!");
         }
         catch (Exception ex) {
@@ -106,17 +107,14 @@ public class SemTextModuleTest {
     }
 
     @Test
-    public void testDeserializingUnregisteredMetadata() throws JsonProcessingException, IOException {
-        String string = objectMapper.writeValueAsString(Meaning.of());
-        ObjectNode jo = (ObjectNode) objectMapper.readTree(string);
+    public void testDeserializingUnregisteredMetadata() throws JsonProcessingException, IOException {        
+        
         ObjectNode jo2 = objectMapper.createObjectNode();
-        jo2.put("a", "b");
-        jo.put("metadata", jo2);
-
-        LOG.log(Level.FINE, "jo.toString = {0}", jo.toString());
+        jo2.put("a", "b");        
+        String json = changeField(objectMapper, LOG, Meaning.of(),"metadata", jo2);
 
         try {
-            objectMapper.readValue(jo.toString(), Meaning.class);
+            objectMapper.readValue(json, Meaning.class);
             Assert.fail();
         }
         catch (SemTextMetadataException ex) {
@@ -128,17 +126,14 @@ public class SemTextModuleTest {
     public void testDeserializingWrongMetadata() throws JsonProcessingException, IOException {
         SemTextModule.registerMetadata(Meaning.class, "a", new TypeReference<List<String>>() {
         });
-
-        String string = objectMapper.writeValueAsString(Meaning.of());
-        ObjectNode jo = (ObjectNode) objectMapper.readTree(string);
+        
         ObjectNode jo2 = objectMapper.createObjectNode();
         jo2.put("a", "b");
-        jo.put("metadata", jo2);
-
-        LOG.log(Level.FINE, "jo.toString = {0}", jo.toString());
-
-        try {
-            objectMapper.readValue(jo.toString(), Meaning.class);
+        
+        String wrongJson = changeField(objectMapper, LOG, Meaning.of(),"metadata", jo2);
+        
+        try {            
+            objectMapper.readValue(wrongJson, Meaning.class);
             Assert.fail();
         }
         catch (SemTextMetadataException ex) {
@@ -149,16 +144,16 @@ public class SemTextModuleTest {
     @Test
     public void testDeserializingNullMetadata() throws JsonProcessingException, IOException {
         SemTextModule.registerMetadata(Meaning.class, "a", String.class);
-        String string = objectMapper.writeValueAsString(Meaning.of());
-        ObjectNode jo = (ObjectNode) objectMapper.readTree(string);
+        
+        
         ObjectNode jo2 = objectMapper.createObjectNode();
         jo2.put("a", (String) null);
-        jo.put("metadata", jo2);
+        String json = changeField(objectMapper, LOG, Meaning.of(), "metadata", jo2);
 
-        LOG.log(Level.FINE, "jo.toString = {0}", jo.toString());
+        
 
         try {
-            objectMapper.readValue(jo.toString(), Meaning.class);
+            objectMapper.readValue(json, Meaning.class);
             Assert.fail();
         }
         catch (SemTextMetadataException ex) {
@@ -192,7 +187,7 @@ public class SemTextModuleTest {
                 Dict.of(Locale.FRENCH, "b"),
                 ImmutableMap.of("a", Dict.of("s"),
                         "b", MyMetadata.of("hello")));
-        JacksonTest.testJsonConv(objectMapper, m1, LOG);
+        OdtJacksonTester.testJsonConv(objectMapper, LOG, m1);
     }
 
     @Test
@@ -205,7 +200,7 @@ public class SemTextModuleTest {
                 Dict.of(Locale.ITALIAN, "a"),
                 Dict.of(Locale.FRENCH, "b"),
                 ImmutableMap.of("a", Dict.of("s")));
-        JacksonTest.testJsonConv(objectMapper, m1, LOG);
+        testJsonConv(objectMapper, LOG, m1);
     }
 
     @Test
@@ -217,7 +212,7 @@ public class SemTextModuleTest {
                 1,
                 ImmutableList.<Term>of(),
                 ImmutableMap.of("a", MyMetadata.of("hello")));
-        JacksonTest.testJsonConv(objectMapper, sen, LOG);
+        testJsonConv(objectMapper, LOG, sen);
     }
 
     @Test
@@ -228,7 +223,7 @@ public class SemTextModuleTest {
                 1,
                 ImmutableList.<Term>of(),
                 ImmutableMap.of("a", MyMetadata.of("hello")));
-        JacksonTest.testJsonConv(objectMapper, sen, LOG);
+        testJsonConv(objectMapper, LOG, sen);
     }
 
     @Test
@@ -236,11 +231,11 @@ public class SemTextModuleTest {
         SemTextModule.registerMetadata(SemText.class, "a", MyMetadata.class);
         registerMyMetadata();
 
-        JacksonTest.testJsonConv(objectMapper,
+        testJsonConv(objectMapper,LOG, 
                 SemText.ofSentences(Locale.ITALIAN,
                         "abcdefghilmno",
                         ImmutableList.<Sentence>of(),
-                        ImmutableMap.of("a", MyMetadata.of())), LOG);
+                        ImmutableMap.of("a", MyMetadata.of())));
 
     }
 
@@ -282,7 +277,7 @@ public class SemTextModuleTest {
                 Dict.of(Locale.FRENCH, "b"),
                 ImmutableMap.of("b", Dict.of("s")));
 
-        JacksonTest.testJsonConv(objectMapper, Meaning.of("a", MeaningKind.CONCEPT, 0.2), LOG);
+        testJsonConv(objectMapper, LOG, Meaning.of("a", MeaningKind.CONCEPT, 0.2));
 
         Term term = Term.of(
                 0,
@@ -292,14 +287,14 @@ public class SemTextModuleTest {
                 ImmutableList.of(m1, m2),
                 ImmutableMap.of("c", 3));
 
-        JacksonTest.testJsonConv(objectMapper,
+        testJsonConv(objectMapper,LOG, 
                 SemText.ofSentences(Locale.ITALIAN,
                         "abcdefghilmno",
                         ImmutableList.of(Sentence.of(0,
                                         7,
                                         ImmutableList.of(term),
                                         ImmutableMap.of("a", MyMetadata.of("hello")))),
-                        ImmutableMap.of("a", 9)), LOG);
+                        ImmutableMap.of("a", 9)));
 
     }
 
