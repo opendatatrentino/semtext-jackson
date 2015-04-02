@@ -308,6 +308,9 @@ public class SemTextModuleTest {
         assertEquals(SemText.of(), objectMapper.readValue("{}", SemText.class));
     }
 
+    /**
+     * Example with manual modules registration
+     */
     @Test
     public void example1() throws JsonProcessingException, IOException {
         ObjectMapper om = new ObjectMapper();
@@ -319,6 +322,9 @@ public class SemTextModuleTest {
         SemText reconstructedSemText = om.readValue(json, SemText.class);
     }
 
+    /**
+     * Example with one line module registration
+     */    
     @Test
     public void example2() throws JsonProcessingException, IOException {
         ObjectMapper om = new ObjectMapper();
