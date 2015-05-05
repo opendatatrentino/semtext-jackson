@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SemText Jackson</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link id="josman-stylesheet" rel="stylesheet" type="text/css" href="../css/josman.css">
+        <!-- <link id="bootstrap-stylesheet" rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+        <link id="bootstrap-theme-stylesheet" rel="stylesheet" type="text/css" href="../css/bootstrap-theme.min.css">
+        -->
+        <link rel="stylesheet" type="text/css" href="website-template/css/josman.css"> 
+        <!--
+        <link  rel="stylesheet" type="text/css" href="website-template/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="website-template/css/bootstrap-theme.min.css">
+        -->
+    </head>
+    <body>
+        <div id="josman-wrapper">
+            <div id="josman-header">
+
+                <div style="position:absolute;  min-height:100px; min-width:100%; ">
+                    <a id="josman-program-logo-link" href="index.html" style="display:none;">
+                        <img id="josman-program-logo" src="../img/josman-logo-200px.png" alt="program logo">    
+                    </a>
+
+                    <a id="josman-repo-link" href="../index.html">SemText Jackson</a>
+
+
+                    <a href="http://dati.trentino.it/en/" target="_blank">
+                        <img style="float:right; padding:10px; width:80px" src="../img/odt-logo.png" alt="organization logo">                        
+                    </a>
+
+                    <div id="josman-nav-header">
+                        <a id="josman-home" href="../index.html">Home</a>                        
+                        <span id="josman-usage" style="margin-left:15px">Usage:                        
+                            
+                            
+                        <a class="josman-version-tab-header josman-tag-selected" href="../1.0/index.html">1.0</a></span>
+                        <span style="margin-left:35px">
+                            <a id="josman-project" class="josman-external-link" href="https://github.com/opendatatrentino/semtext-jackson" target="_blank">Repo</a>
+                            <a id="josman-wiki" class="josman-external-link" href="https://github.com/opendatatrentino/semtext-jackson/wiki" target="_blank">Wiki</a> 
+                        </span>
+                    </div>
+                </div>                
+
+            </div>
+
+            <div id="josman-sidebar">
+                <div id="josman-internal-sidebar" class="josman-sidebar-block"><ul class="josman-tree"><li><div class="josman-sidebar-page-title josman-sidebar-selected">Usage</div><ul class="josman-tree"><div><a href="#maven">Maven</a></div><div><a href="#registering-jackson-module">Registering Jackson Module</a></div><div><a href="#simple-usage-example">Simple usage example</a></div><div><a href="#metadata-deserialization">Metadata deserialization</a></div><div><a href="#custom-metadata-deserialization">Custom metadata deserialization</a></div></ul></li><li><div class="josman-sidebar-page-title"><a href="CHANGES.html">Release notes</a></div><ul class="josman-tree"></ul></li></ul></div>
+
+
+
+                <div id="josman-sidebar-managed-block" class="josman-sidebar-block">
+
+                    <div id="josman-javadoc-link" class="josman-sidebar-page-title"><a class="josman-external-link" href="javadoc/index.html" target="_blank">Javadoc</a></div>
+                    <!-- <div><a href="CHANGES.html">Release notes</a></div> -->              
+                </div>
+
+
+            </div>
+
+            <div id="josman-content">
+                <div id="josman-internal-content"><h3><a href="#maven" name="maven">Maven</a></h3><p>SemText Jackson is available on Maven Central. To use it, put this in the dependencies section of your <em>pom.xml</em>: </p>
+<pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;eu.trentorise.opendata.semtext&lt;/groupId&gt;
+  &lt;artifactId&gt;semtext-jackson&lt;/artifactId&gt;
+  &lt;version&gt;1.0.0&lt;/version&gt;            
+&lt;/dependency&gt;
+</code></pre><p>In case updates are available, version numbers follows <a href="http://semver.org/">semantic versioning</a> rules.</p><h3><a href="#registering-jackson-module" name="registering-jackson-module">Registering Jackson Module</a></h3><p>You can register SemTextModule in your own Jackson ObjectMapper:</p>
+<pre><code>    ObjectMapper om = new ObjectMapper();
+    om.registerModule(new GuavaModule());
+    om.registerModule(new OdtCommonsModule());
+    om.registerModule(new SemTextModule());
+
+    String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
+    SemText reconstructedSemText = om.readValue(json, SemText.class);
+</code></pre><p>Notice we have also registered the necessary Guava (for immutable collections) and Odt Commons modules (for Dict and LocalizedString).<br>To register everything in one command just write:</p>
+<pre><code>    ObjectMapper om = new ObjectMapper();
+    SemTextModule.registerModulesInto(om);        
+  
+</code></pre><h3><a href="#simple-usage-example" name="simple-usage-example">Simple usage example</a></h3>
+<pre><code>    ObjectMapper om = new ObjectMapper();
+    SemTextModule.registerModulesInto(om);
+
+    String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
+    SemText reconstructedSemText = om.readValue(json, SemText.class);
+</code></pre><h3><a href="#metadata-deserialization" name="metadata-deserialization">Metadata deserialization</a></h3><p>Any object can be attached as metadata to <code>SemText</code>, <code>Sentence</code>, <code>Term</code> or <code>Meaning</code>, with the constraint that it must be non-null and should be immutable. Metadata is accessed by providing a namespace. For example, let's say we want to associate a Java <code>Date</code> to <code>SemText</code>, under the namespace <code>testns</code>. </p><p>To create our object in Java we can write this:</p>
+<pre><code>    SemText.of("ciao").withMetadata("testns", new Date(123))
+</code></pre><p>Once serialized as JSON, it will look like this:</p>
+<pre><code>{
+  "locale":"",
+  "text":"ciao",
+  "sentences":[],
+  "metadata":{
+                "testns":123
+             }
+}
+</code></pre><p>In order for metadata objects to be properly deserialized, we need to associate namespaces to object types by registering them in the <code>SemTextModule</code>. So, in order to serialize/deserialize the example above, we would do something like the following:</p>
+<pre><code>    ObjectMapper om = new ObjectMapper();
+
+    // register all required modules into the Jackson Object Mapper
+    SemTextModule.registerModulesInto(om);
+
+    // declare that metadata under namespace 'testns' in SemText objects
+    // should be deserialized into a Date object
+    SemTextModule.registerMetadata(SemText.class, "testns", Date.class);       
+
+    String json = om.writeValueAsString(SemText.of("ciao").withMetadata("testns", new Date(123)));
+
+    SemText reconstructedSemText = om.readValue(json, SemText.class);                                
+
+    Date reconstructedMetadata = (Date) reconstructedSemText.getMetadata("testns");
+
+    assert  new Date(123).equals(reconstructedMetadata);
+</code></pre><p>NOTE: namespace register is a static variable, so it's shared among all the object mappers. If you're writing a library with SemText serializer make sure to use a reasonably unique (thus long) namespace. Applications instead may use shorter namespaces.</p><h3><a href="#custom-metadata-deserialization" name="custom-metadata-deserialization">Custom metadata deserialization</a></h3><p>A more complex example can be found in <a href="https://github.com/opendatatrentino/semtext-jackson/blob/master/src/test/java/eu/trentorise/opendata/semtext/jackson/test/SemTextModuleTest.java" target="_blank">SemTextModuleTest.metadataSerializationComplex</a>, which shows how to develop and register a custom immutable metadata object. </p></div>
+            </div>
+
+        </div>        
+        <script src="../js/jquery-1.11.2.min.js"></script>
+        <!-- <script src="../js/bootstrap-3.3.4.min.js"></script> -->
+
+        <!-- quick and silly hack to get the file -->
+        <script src="website-template/js/jquery-1.11.2.min.js"></script>
+        <!-- quick and silly hack to get the file -->
+        <script src="website-template/js/jquery-3.3.4.min.js"></script>
+        <script>
+            // idotic CSS in style doesn't work, so use jquery instead: 
+            // also would like pre code but this will select code and won't work. There aren't selectors for parents
+
+            $("pre").css("max-width", "680px").css("overflow-x", "auto");
+
+            /* We don't support this yet...
+             $('.josman-tree-toggle').click(function () {
+             $(this).parent().children('ul.tree').toggle(200);
+             return false;
+             });
+             */
+        </script>
+    </body>
+</html>
