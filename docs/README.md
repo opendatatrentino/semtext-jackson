@@ -3,10 +3,8 @@ WARNING: WORK IN PROGRESS - THIS IS ONLY A TEMPLATE FOR THE DOCUMENTATION. <br/>
 RELEASE DOCS ARE ON THE <a href="http://opendatatrentino.github.io/semtext-jackson" target="_blank">PROJECT WEBSITE</a>
 </p>
 
-This release permits serializing/deserializing all SemText objects plus configuring Jackson for handling any custom object used as metadata.
 
-
-### Maven dependency
+### Maven
 
 SemText Jackson is available on Maven Central. To use it, put this in the dependencies section of your _pom.xml_: 
 
@@ -22,7 +20,7 @@ SemText Jackson is available on Maven Central. To use it, put this in the depend
 In case updates are available, version numbers follows [semantic versioning](http://semver.org/) rules.
 
 
-### Using Jackson Module
+### Registering Jackson Module
 
 You can register SemTextModule in your own Jackson ObjectMapper:
 
@@ -45,7 +43,7 @@ To register everything in one command just write:
   
 ```
 
-#### Simple usage example
+### Simple usage example
 
 ```
     ObjectMapper om = new ObjectMapper();
@@ -55,9 +53,9 @@ To register everything in one command just write:
     SemText reconstructedSemText = om.readValue(json, SemText.class);
 ```
 
-#### Metadata deserialization
+### Metadata deserialization
 
-Any object can be attached as metadata to SemText, Sentence, Term or Meaning, with the constraint that it must be non-null and should be immutable. Metadata is accessed by providing a namespace. For example, let's say we want to associate a Java Date to SemText, under the namespace "testns". 
+Any object can be attached as metadata to `SemText`, `Sentence`, `Term` or `Meaning`, with the constraint that it must be non-null and should be immutable. Metadata is accessed by providing a namespace. For example, let's say we want to associate a Java `Date` to `SemText`, under the namespace `testns`. 
 
 To create our object in Java we can write this:
 
@@ -78,7 +76,7 @@ Once serialized as JSON, it will look like this:
 }
 ```
 
-In order for metadata objects to be properly deserialized, we need to associate namespaces to object types by registering them in the SemTextModule. So, in order to serialize/deserialize the example above, we would do something like the following:
+In order for metadata objects to be properly deserialized, we need to associate namespaces to object types by registering them in the `SemTextModule`. So, in order to serialize/deserialize the example above, we would do something like the following:
 
 ```
     ObjectMapper om = new ObjectMapper();
@@ -101,6 +99,6 @@ In order for metadata objects to be properly deserialized, we need to associate 
 
 NOTE: namespace register is a static variable, so it's shared among all the object mappers. If you're writing a library with SemText serializer make sure to use a reasonably unique (thus long) namespace. Applications instead may use shorter namespaces.
 
-#### Custom metadata deserialization
+### Custom metadata deserialization
 
 A more complex example can be found in <a href="https://github.com/opendatatrentino/semtext-jackson/blob/master/src/test/java/eu/trentorise/opendata/semtext/jackson/test/SemTextModuleTest.java" target="_blank">SemTextModuleTest.metadataSerializationComplex</a>, which shows how to develop and register a custom immutable metadata object. 

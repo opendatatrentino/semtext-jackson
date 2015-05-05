@@ -1,10 +1,12 @@
 
-SEMTEXT JACKSON RELEASE NOTES
----------------------
+## SEMTEXT JACKSON RELEASE NOTES
 
-Project website: http://opendatatrentino.github.io/semtext-jackson 
+### 1.0.0
 
-<br/>
+May 5th, 2015
 
+This release permits serializing/deserializing all SemText objects plus configuring Jackson for handling any custom object used as metadata.
 
-#### 0.27.x   todo in progress
+- Implemented ser/deserializers for semtext objects
+- Implemented ser/desrialization of metadata
+- adopted josman documentation system

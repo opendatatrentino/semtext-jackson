@@ -27,142 +27,47 @@
 
     <name>SemText Jackson</name>
     <url>https://github.com/opendatatrentino/semtext-jackson</url>
+    <description>Java library for JSON serialization of SemText objects</description>
 
     <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>        
+        <groupId>eu.trentorise.opendata.commons</groupId>
+        <artifactId>odt-super-pom</artifactId>
+        <version>1.1.0</version>
     </parent>
 
-    <organization>
-        <name>Trento Rise</name>
-        <url>http://www.trentorise.eu</url>        
-    </organization>
-
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-            <comments>A business-friendly OSS license</comments>
-        </license>
-    </licenses>
-
-
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <jackson2.version>2.4.2</jackson2.version>
-        <netbeans.hint.license>apache20</netbeans.hint.license>
-        <scmUrl>https://github.com/opendatatrentino/semtext-jackson</scmUrl>
-    </properties>
-
-
-    <profiles>
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
+    <scm>
+        <url>${project.url}</url>
+        <connection>scm:git:${project.url}.git</connection>
+        <developerConnection>scm:git:${project.url}.git</developerConnection>        
+        <tag>HEAD</tag>
+    </scm>
 
     <build>
-        <plugins>          
-			
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12.1</version>                
-            </plugin>
-            
-		
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-                <configuration>
-                    <attach>true</attach>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-		            
-            
+        <plugins>          			          	           
+		                        
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>animal-sniffer-maven-plugin</artifactId>
+            </plugin> 
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
             </plugin>
             
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>1.3</version>                
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>create</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <doCheck>false</doCheck>
-                    <doUpdate>false</doUpdate>
-                </configuration>
-                                   
             </plugin>      
             
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.5</version>        
                 <executions>
                     <execution>                        
                         <goals>
@@ -170,57 +75,27 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>                    
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>                            
-                        </manifest>
-                        <manifestEntries>
-                            <git-sha>${buildNumber}</git-sha>
-                            <timestamp>${timestamp}</timestamp>
-                        </manifestEntries>
-                    </archive>                    
-                </configuration>        
             </plugin>
-        </plugins>      
-
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>2.5.1</version>
-                    <configuration>
-                        <mavenExecutorId>forked-path</mavenExecutorId>
-                        <useReleaseProfile>false</useReleaseProfile>
-                        <arguments>${arguments} -Psonatype-oss-release</arguments>
-                    </configuration>
-                </plugin>
-                
-            </plugins>
+                        
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>                
+            <plugin>
+                <groupId>eu.trentorise.opendata.josman</groupId>
+                <artifactId>josman-maven-plugin</artifactId>              
+            </plugin>    
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+            </plugin>              
             
-        </pluginManagement>      
-        
-        <resources>
-            <resource>
-                <directory>src/main/resources/</directory>
-                <includes>
-                    <include>odt.commons.build.properties</include>
-                </includes>
-                <filtering>true</filtering>
-            </resource>
-        </resources>   
-                  
+        </plugins>      
+      
     </build>
-    
-    <scm>
-        <url>${scmUrl}</url>
-        <connection>scm:git:${scmUrl}.git</connection>
-        <developerConnection>scm:git:${scmUrl}.git</developerConnection>        
-        <tag>HEAD</tag>
-    </scm>
 
-    <description>Java client to access CKAN repositories. </description>
+
+    
 
     <developers>
         <developer>
@@ -253,56 +128,20 @@
 		
     </developers>
 
-
     <dependencies>
         
         <dependency>
             <groupId>eu.trentorise.opendata.commons</groupId>
             <artifactId>odt-commons-jackson</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>                                
-        
+            <version>1.0.2</version>
+        </dependency>       
+                
         <dependency>
             <groupId>eu.trentorise.opendata.semtext</groupId>
             <artifactId>semtext</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>                                
-        
-                                                
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
-            <version>2.0.1</version>
-        </dependency>      
-        
-     
-        <!-- the Jackson core, which includes Streaming API, shared low-level abstractions (but NOT data-binding) -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson2.version}</version>
-        </dependency>
-
-        <!-- Just the annotations; use this dependency if you want to attach annotations
-        to classes without connecting them to the code. -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson2.version}</version>
-        </dependency>
-
-        <!-- databinding; ObjectMapper, JsonNode and related classes are here -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson2.version}</version>
-        </dependency>
-            
+            <version>1.0.0</version>
+        </dependency>                                                                                            
+                
         <!-- *****************************   STUFF FOR TESTING ********************************  -->
 
         <dependency>
@@ -315,14 +154,20 @@
         <dependency>
             <groupId>pl.pragmatists</groupId>
             <artifactId>JUnitParams</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>              
         </dependency>               
         
         <dependency>
             <groupId>eu.trentorise.opendata.commons</groupId>
             <artifactId>odt-commons-jackson</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.2</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>

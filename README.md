@@ -13,7 +13,7 @@ RELEASE DOCS ARE ON THE <a href="http://opendatatrentino.github.io/semtext-jacks
 
 **About**
 
-Java library for [SemText](https://github.com/opendatatrentino/semtext) JSON serialization with Jackson. Features:
+Java library for <a href="https://opendatatrentino.github.io/semtext" target="_blank">SemText</a> JSON serialization with Jackson. Features:
 
   * provides a Jackson Module for SemText objects
   * allows to serialize/deserialize any Java object used as metadata
