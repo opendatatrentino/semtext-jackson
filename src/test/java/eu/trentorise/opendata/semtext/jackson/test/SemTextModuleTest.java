@@ -117,7 +117,7 @@ public class SemTextModuleTest {
             objectMapper.readValue(json, Meaning.class);
             Assert.fail();
         }
-        catch (SemTextMetadataException ex) {
+        catch (JsonMappingException ex) {
 
         }
     }
@@ -136,7 +136,7 @@ public class SemTextModuleTest {
             objectMapper.readValue(wrongJson, Meaning.class);
             Assert.fail();
         }
-        catch (SemTextMetadataException ex) {
+        catch (JsonMappingException ex) {
 
         }
     }
@@ -156,7 +156,7 @@ public class SemTextModuleTest {
             objectMapper.readValue(json, Meaning.class);
             Assert.fail();
         }
-        catch (SemTextMetadataException ex) {
+        catch (JsonMappingException ex) {
 
         }
     }
