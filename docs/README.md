@@ -27,14 +27,14 @@ You can register SemTextModule in your own Jackson ObjectMapper:
 ```
     ObjectMapper om = new ObjectMapper();
     om.registerModule(new GuavaModule());
-    om.registerModule(new OdtCommonsModule());
+    om.registerModule(new TodCommonsModule());
     om.registerModule(new SemTextModule());
 
     String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));
     SemText reconstructedSemText = om.readValue(json, SemText.class);
 ```
 
-Notice we have also registered the necessary Guava (for immutable collections) and Odt Commons modules (for Dict and LocalizedString).
+Notice we have also registered the necessary Guava (for immutable collections) and Tod Commons modules (for Dict and LocalizedString).
 To register everything in one command just write:
 
 ```

@@ -26,8 +26,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import eu.trentorise.opendata.commons.Dict;
 import eu.trentorise.opendata.commons.NotFoundException;
-import eu.trentorise.opendata.commons.OdtConfig;
-import eu.trentorise.opendata.commons.jackson.OdtCommonsModule;
+import eu.trentorise.opendata.commons.TodConfig;
+import eu.trentorise.opendata.commons.jackson.TodCommonsModule;
 import eu.trentorise.opendata.semtext.Meaning;
 import eu.trentorise.opendata.semtext.MeaningKind;
 import eu.trentorise.opendata.semtext.MeaningStatus;
@@ -38,9 +38,9 @@ import java.util.Locale;
 import java.util.logging.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import eu.trentorise.opendata.commons.test.jackson.OdtJacksonTester;
-import static eu.trentorise.opendata.commons.test.jackson.OdtJacksonTester.changeField;
-import static eu.trentorise.opendata.commons.test.jackson.OdtJacksonTester.testJsonConv;
+import eu.trentorise.opendata.commons.test.jackson.TodJacksonTester;
+import static eu.trentorise.opendata.commons.test.jackson.TodJacksonTester.changeField;
+import static eu.trentorise.opendata.commons.test.jackson.TodJacksonTester.testJsonConv;
 import eu.trentorise.opendata.semtext.jackson.SemTextMetadataException;
 import eu.trentorise.opendata.semtext.jackson.SemTextModule;
 import java.io.IOException;
@@ -65,7 +65,7 @@ public class SemTextModuleTest {
 
     @BeforeClass
     public static void beforeClass() {
-        OdtConfig.init(SemTextModuleTest.class);
+        TodConfig.init(SemTextModuleTest.class);
     }
 
     @Before
@@ -91,7 +91,7 @@ public class SemTextModuleTest {
                 Dict.of(Locale.FRENCH, "b"),
                 ImmutableMap.of("testns", Dict.of("s")));
         try {
-            OdtJacksonTester.testJsonConv(objectMapper, LOG, m1);
+            TodJacksonTester.testJsonConv(objectMapper, LOG, m1);
             Assert.fail("Should have complained about unregistered namespace!");
         }
         catch (Exception ex) {
@@ -187,7 +187,7 @@ public class SemTextModuleTest {
                 Dict.of(Locale.FRENCH, "b"),
                 ImmutableMap.of("a", Dict.of("s"),
                         "b", MyMetadata.of("hello")));
-        OdtJacksonTester.testJsonConv(objectMapper, LOG, m1);
+        TodJacksonTester.testJsonConv(objectMapper, LOG, m1);
     }
 
     @Test
@@ -315,7 +315,7 @@ public class SemTextModuleTest {
     public void example1() throws JsonProcessingException, IOException {
         ObjectMapper om = new ObjectMapper();
         om.registerModule(new GuavaModule());
-        om.registerModule(new OdtCommonsModule());
+        om.registerModule(new TodCommonsModule());
         om.registerModule(new SemTextModule());
 
         String json = om.writeValueAsString(SemText.of(Locale.ITALIAN, "ciao"));

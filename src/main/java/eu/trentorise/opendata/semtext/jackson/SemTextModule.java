@@ -25,8 +25,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableSet;
 import eu.trentorise.opendata.commons.Dict;
 import eu.trentorise.opendata.commons.NotFoundException;
-import static eu.trentorise.opendata.commons.OdtUtils.checkNotEmpty;
-import eu.trentorise.opendata.commons.jackson.OdtCommonsModule;
+import static eu.trentorise.opendata.commons.TodUtils.checkNotEmpty;
+import eu.trentorise.opendata.commons.jackson.TodCommonsModule;
 import eu.trentorise.opendata.semtext.HasMetadata;
 import eu.trentorise.opendata.semtext.Meaning;
 import eu.trentorise.opendata.semtext.MeaningKind;
@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
 /**
  * A module for handling semtext objects with Jackson JSON serialization
  * framework. In order to work properly the module needs you to register also
- * OdtCommonModule and GuavaModule (both are in separate maven packages). For
+ * TodCommonModule and GuavaModule (both are in separate maven packages). For
  * properly deserializing metadata you also need to register it by calling {@link #registerMetadata(java.lang.Class, java.lang.String, java.lang.Class)
  * }
  *
@@ -148,7 +148,7 @@ public final class SemTextModule extends SimpleModule {
      * deserializers
      */
     public SemTextModule() {
-        super("odt-commons-jackson", OdtCommonsModule.readJacksonVersion(SemTextModule.class));
+        super("tod-commons-jackson", TodCommonsModule.readJacksonVersion(SemTextModule.class));
 
         setMixInAnnotation(Meaning.class, JacksonMeaning.class);
         setMixInAnnotation(Term.class, JacksonTerm.class);
@@ -169,10 +169,10 @@ public final class SemTextModule extends SimpleModule {
 
     /**
      * Registers in the provided object mapper the jackson semtext module and
-     * also the required odt commons and guava modules.
+     * also the required tod commons and guava modules.
      */
     public static void registerModulesInto(ObjectMapper om) {
-        OdtCommonsModule.registerModulesInto(om);
+        TodCommonsModule.registerModulesInto(om);
         om.registerModule(new SemTextModule());
     }
 
