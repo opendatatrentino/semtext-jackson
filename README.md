@@ -1,3 +1,8 @@
+
+<h1>
+THIS LIBRARY IS DEPRECATED. JACKSON ANNOTATIONS HAVE BEEN MERGED IN  <a href="https://github.com/opendatatrentino/semtext">SEMTEXT</a>.
+</h1>
+ 
 <p class="jedoc-to-strip">
 WARNING: WORK IN PROGRESS - THIS IS ONLY A TEMPLATE FOR THE DOCUMENTATION. <br/>
 RELEASE DOCS ARE ON THE <a href="http://opendatatrentino.github.io/semtext-jackson" target="_blank">PROJECT WEBSITE</a>
